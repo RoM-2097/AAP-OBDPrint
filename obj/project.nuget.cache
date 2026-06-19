@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "yjE5bUqrsUA=",
+  "success": true,
+  "projectFilePath": "H:\\Portfolio 2020\\Apps\\AAP-OBDPrint\\AAP-OBDPrint\\AAP-OBDPrint.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Rob\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
+    "C:\\Users\\Rob\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.3\\microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512",
+    "C:\\Users\\Rob\\.nuget\\packages\\radzen.blazor\\10.4.9\\radzen.blazor.10.4.9.nupkg.sha512"
+  ],
+  "logs": []
+}

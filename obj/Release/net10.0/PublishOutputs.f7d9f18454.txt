@@ -1,0 +1,9 @@
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\AAP-OBDPrint.exe
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\appsettings.Development.json
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\appsettings.json
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\AAP-OBDPrint.dll
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\AAP-OBDPrint.runtimeconfig.json
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\AAP-OBDPrint.pdb
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\CsvHelper.dll
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\Radzen.Blazor.dll
+H:\Portfolio 2020\Apps\AAP-OBDPrint\AAP-OBDPrint\release\AAP-OBDPrint.deps.json

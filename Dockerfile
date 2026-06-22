@@ -7,7 +7,7 @@ ENV ASPNETCORE_URLS=http://+:5087
 FROM mcr.microsoft.com/dotnet/sdk:10.0-nanoserver-ltsc2022 AS build
 ARG configuration=Release
 WORKDIR /src
-COPY ["AAP-OBDPrint/AAP-OBDPrint.csproj", "AAP-OBDPrint/"]
+COPY ["AAP-OBDPrint.csproj", "AAP-OBDPrint/"]
 RUN dotnet restore "AAP-OBDPrint\AAP-OBDPrint.csproj"
 COPY . .
 WORKDIR "/src/AAP-OBDPrint"

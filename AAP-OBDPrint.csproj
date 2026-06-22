@@ -21,8 +21,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Prevent BLAZOR106 for this project by excluding the problematic JS module static asset. -->
+    <!-- Prevent BLAZOR106 by excluding problematic JS module static assets.
+         Also exclude published test artifacts that may be present in the repo. -->
     <Content Remove="Components/Layout/ReconnectModal.razor.js" />
+    <Content Remove="publish_test/**" />
+    <Content Remove="publish_test/wwwroot/**" />
   </ItemGroup>
 
 </Project>

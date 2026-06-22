@@ -1,5 +1,5 @@
 ﻿@page "/"
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveServer
 @inject Radzen.DialogService DialogService
 @inject IJSRuntime JSRuntime
 @inject HttpClient Http
@@ -195,6 +195,10 @@
 <div class="obd-page-container">
 
     <h1 class="no-print text-white">OBD Code Definitions</h1>
+
+     <p class="no-print text-white-50 disclaimer-text mb-4">
+        <em><strong>Disclaimer:</strong> OBD codes are for reference only, and meant to be used by a professional technician to help troubleshoot a vehicle's mechanical issue. Advance Auto Parts provides this report as a free service for customers with no warranties or guarantee.</em>
+    </p>
 
     <!-- Input Form controls -->
     <div class="mb-3 no-print">

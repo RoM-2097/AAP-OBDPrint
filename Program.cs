@@ -8,7 +8,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(builder.Environment.ContentRootPath)
+    BaseAddress = new Uri(builder.Configuration["FrontendUrl"] ?? "http://localhost:5087")
 });
 
 builder.Services.AddScoped<Radzen.DialogService>();

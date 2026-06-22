@@ -25,7 +25,6 @@
          Also exclude published test artifacts that may be present in the repo. -->
     <Content Remove="Components/Layout/ReconnectModal.razor.js" />
     <Content Remove="publish_test/**" />
-    <Content Remove="publish_test/wwwroot/**" />
   </ItemGroup>
 
 </Project>

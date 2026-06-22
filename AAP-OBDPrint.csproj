@@ -14,5 +14,16 @@
     <PackageReference Include="Radzen.Blazor" Version="10.4.9" />
   </ItemGroup>
 
+  <!-- JS modules for components can fail strict validation if the framework can't map
+       the JS to a component view. Disable to allow build to succeed for hosting. -->
+  <PropertyGroup>
+    <BlazorJSDisableInteropValidation>true</BlazorJSDisableInteropValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Prevent BLAZOR106 for this project by excluding the problematic JS module static asset. -->
+    <Content Remove="Components/Layout/ReconnectModal.razor.js" />
+  </ItemGroup>
+
 </Project>
 

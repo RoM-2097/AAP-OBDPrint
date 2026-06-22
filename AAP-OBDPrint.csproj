@@ -7,6 +7,7 @@
     <RootNamespace>AAP_OBDPrint</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+
   </PropertyGroup>
 
   <ItemGroup>

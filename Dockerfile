@@ -5,18 +5,19 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 5087
 ENV ASPNETCORE_URLS=http://+:5087
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG configuration=Release
 WORKDIR /src
 
-# Copy csproj first for better layer caching
-COPY ["AAP-OBDPrint.csproj", "AAP-OBDPrint/" ]
-RUN dotnet restore "AAP-OBDPrint/AAP-OBDPrint.csproj"
-
-# Copy the rest of the source
+# Copy project source to the expected folder layout expected by the csproj.
+# The previous approach only moved a subset of files and caused Razor namespace/layout types to be missing during container builds.
 COPY . .
-WORKDIR /src/AAP-OBDPrint
+
+# Restore (uses only csproj in the copied tree)
+RUN dotnet restore "AAP-OBDPrint.csproj"
+
 RUN dotnet build "AAP-OBDPrint.csproj" -c $configuration -o /app/build
 
 FROM build AS publish

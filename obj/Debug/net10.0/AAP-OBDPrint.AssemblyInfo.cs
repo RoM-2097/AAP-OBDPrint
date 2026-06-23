@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AAP-OBDPrint")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5dbbc2521fc584439860443ec1c8af4d290e49c5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1e1f346de1e031500eda3e8b95cecb5a49bd45a")]
 [assembly: System.Reflection.AssemblyProductAttribute("AAP-OBDPrint")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AAP-OBDPrint")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,12 +1,10 @@
 @page "/home-fixed"
 
-
 @rendermode InteractiveServer
 @inject Radzen.DialogService DialogService
 @inject IJSRuntime JSRuntime
 @inject HttpClient Http
 @using System
-@using AAP_OBDPrint.Models
 @using System.Collections.Generic
 @using System.Linq
 @using System.Threading.Tasks
@@ -87,7 +85,6 @@
         transform: translateY(1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-
 
     /* ==========================================
        B. PRINT-ONLY EXPORT DOCUMENT OVERRIDES
@@ -239,12 +236,13 @@
         {
             if (!string.IsNullOrEmpty(obdCode))
             {
-                var result = obdResults.FirstOrDefault(r => r.Code.Equals(obdCode.Trim(), StringComparison.OrdinalIgnoreCase));
+                var trimmedCode = obdCode.Trim();
+                var result = obdResults.FirstOrDefault(r => r.Code.Equals(trimmedCode, StringComparison.OrdinalIgnoreCase));
 
                 if (result != null)
                 {
                     <div class="mb-3 p-3 border rounded print-card bg-white text-dark shadow-sm">
-                        <h2>@obdCode.Trim().ToUpper()</h2>
+                        <h2>@trimmedCode.ToUpper()</h2>
                         <p class="definition-text">@result.Description</p>
 
                         <div class="fixes-box">
@@ -256,7 +254,7 @@
                 else
                 {
                     <div class="mb-3 p-3 border rounded text-danger print-card bg-white shadow-sm">
-                        <h2>@obdCode.Trim().ToUpper()</h2>
+                        <h2>@trimmedCode.ToUpper()</h2>
                         <p class="definition-text">Definition not found.</p>
                     </div>
                 }
@@ -270,14 +268,14 @@
     [Parameter]
     public string ObdCodes { get; set; } = string.Empty;
 
-    private List<OBDResult> obdResults = new List<OBDResult>();
-    private List<string> codesToDisplay = new List<string>();
+    private readonly List<OBDResult> obdResults = new();
+    private List<string> codesToDisplay = new();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var csvContent = await Http.GetStringAsync("data/obd-trouble-codes.csv");
+            var csvContent = await Http.GetStringAsync("data/obd-trouble-codes-with-fixes-detailed-no-notes.csv");
             var lines = csvContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var line in lines)
@@ -290,10 +288,13 @@
                 var part1 = line.Substring(0, firstCommaIndex).Trim().Trim('"');
                 var part2 = line.Substring(firstCommaIndex + 1).Trim().Trim('"');
 
-                string codeField = "";
-                string descriptionField = "";
+                if (string.IsNullOrWhiteSpace(part1) || string.IsNullOrWhiteSpace(part2))
+                    continue;
 
-                // Multi-index single character validation routing map logic paths
+                // Route: if part1 looks like an OBD code, treat part1 as code.
+                string codeField;
+                string descriptionField;
+
                 if (part1.Length >= 4 && char.IsLetter(part1[0]) && char.IsDigit(part1[1]))
                 {
                     codeField = part1;
@@ -305,18 +306,18 @@
                     descriptionField = part1;
                 }
 
-                if (!string.IsNullOrEmpty(codeField))
-                {
-                    var codeForFix = codeField.ToUpper();
-                    var commonFix = await GetGrokCommonFixAsync(codeForFix);
+                if (string.IsNullOrWhiteSpace(codeField))
+                    continue;
 
-                    obdResults.Add(new OBDResult
-                    {
-                        Code = codeForFix,
-                        Description = descriptionField,
-                        CommonFix = commonFix
-                    });
-                }
+                var codeForFix = codeField.ToUpperInvariant();
+                var commonFix = GetCommonFixFromCsv(csvContent, codeForFix);
+
+                obdResults.Add(new OBDResult
+                {
+                    Code = codeForFix,
+                    Description = descriptionField,
+                    CommonFix = commonFix
+                });
             }
         }
         catch (Exception ex)
@@ -332,13 +333,13 @@
 
     private void ProcessCodes()
     {
-        if (string.IsNullOrEmpty(ObdCodes))
+        if (string.IsNullOrWhiteSpace(ObdCodes))
         {
             codesToDisplay.Clear();
             return;
         }
 
-        codesToDisplay = ObdCodes.Split(',').ToList();
+        codesToDisplay = ObdCodes.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
     }
 
     private void PrintReport()
@@ -346,34 +347,68 @@
         _ = JSRuntime.InvokeVoidAsync("window.print");
     }
 
-    private async Task<string> GetGrokCommonFixAsync(string obdCode)
+    private static string GetCommonFixFromCsv(string csvContent, string codeForFix)
     {
-        const string fallback = "Inspect wiring harnesses, check circuit connectors for corrosion, and verify sensor component voltage data specs.";
-
         try
         {
-            var query = $"what is the common fix for OBD code {obdCode}? Return 2-3 sentences total.";
-            var url = $"https://grok.com/?q={Uri.EscapeDataString(query)}";
+            // CSV format: Code,Trouble Code System,Condition Description,Common Fixes
+            // Common Fixes cell may contain commas and is typically quoted.
+            var lines = csvContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-            var responseText = await Http.GetStringAsync(url);
-            var text = (responseText ?? string.Empty).Trim();
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
 
-            // Enforce “short summary” regardless of upstream formatting.
-            var sentences = text.Split(new[] { '.', '!', '?' }, StringSplitOptions.RemoveEmptyEntries)
-                                .Select(s => s.Trim())
-                                .Where(s => !string.IsNullOrWhiteSpace(s))
-                                .Take(3)
-                                .ToArray();
+                // Skip header
+                if (line.StartsWith("Code,", StringComparison.OrdinalIgnoreCase) || line.StartsWith("Code\t"))
+                    continue;
 
-            if (sentences.Length == 0)
-                return fallback;
+                var cols = ParseCsvRow(line);
+                if (cols.Count < 4) continue;
 
-            return string.Join(". ", sentences) + ".";
+                var codeField = (cols[0] ?? string.Empty).Trim().Trim('"');
+                if (codeField.Equals(codeForFix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (cols[3] ?? string.Empty).Trim().Trim('"');
+                }
+            }
+
+            return string.Empty;
         }
         catch
         {
-            return fallback;
+            return string.Empty;
         }
+    }
+
+    private static List<string> ParseCsvRow(string row)
+    {
+        var result = new List<string>();
+        var current = new System.Text.StringBuilder();
+        bool inQuotes = false;
+
+        for (int i = 0; i < row.Length; i++)
+        {
+            var ch = row[i];
+
+            if (ch == '"')
+            {
+                inQuotes = !inQuotes;
+                continue;
+            }
+
+            if (ch == ',' && !inQuotes)
+            {
+                result.Add(current.ToString());
+                current.Clear();
+                continue;
+            }
+
+            current.Append(ch);
+        }
+
+        result.Add(current.ToString());
+        return result;
     }
 
     public class OBDResult
